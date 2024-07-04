@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { calculateSystemSize } from '../utils/calculateSystemSize';
 import '../styles/ApplianceList.css';
 
@@ -67,46 +67,70 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
   const [systemSize, setSystemSize] = useState({});
   const [powerSources, setPowerSources] = useState([]);
 
-  const calculateAndSetSystemSize = useCallback(() => {
-    const newSystemSize = calculateSystemSize({
-      appliances,
-      useGridPower,
-      useSolarPanels,
-      gridHours,
-      batteryUsageHours,
-      selectedAppliances,
-    });
-    setTotalConsumption(newSystemSize.totalConsumption);
-    setBatteryCapacity(newSystemSize.batteryCapacity);
-    setSystemSize(newSystemSize);
+  const [inverterSize, setInverterSize] = useState(0);
+  const [batterySize, setBatterySize] = useState(0);
+  const [effectiveBatterySize, setEffectiveBatterySize] = useState(0);
+  const [batteryBackupHours, setBatteryBackupHours] = useState(12);
+  const [hourlyConsumption, setHourlyConsumption] = useState(0);
+  const [numberOfPanels, setNumberOfPanels] = useState(1);
+  const [panelWattage, setPanelWattage] = useState(300);
+  const [solarPanelSize, setSolarPanelSize] = useState(0);
 
-    // Simulate power flow data
-    const newPowerSources = Array.from({ length: 24 }, (_, hour) => {
-      let grid = 0;
-      let solar = 0;
-      let battery = 0;
+  const PEAK_SUN_HOURS = 5;
+  const MIN_BATTERY_SIZE = 2556; // Minimum battery size in Wh
 
-      if (useGridPower && hour >= (24 - gridHours)) {
-        grid = newSystemSize.peakPowerDemand;
-      }
+  function calculateDailyKWh(appliance) {
+    const kWh = ((appliance.power * appliance.hoursPerDay * (appliance.quantity || 1)) / 1000).toFixed(2);
+    return isNaN(kWh) ? '0' : kWh;
+  }
 
-      if (useSolarPanels && hour < 5) { // Assuming peak sun hours are from 0 to 4
-        solar = newSystemSize.panelWattage * newSystemSize.numberOfPanels;
-      }
+  function calculateTotalKWh() {
+    return Object.values(selectedAppliances).reduce((total, appliance) => {
+      return total + Number(calculateDailyKWh(appliance));
+    }, 0).toFixed(2);
+  }
 
-      if (hour < batteryUsageHours) {
-        battery = newSystemSize.batteryCapacity / batteryUsageHours;
-      }
+  function calculateSystemSize() {
+    console.log('Selected Appliances:', selectedAppliances);
 
-      return { grid, solar, battery };
-    });
+    const maxPowerTotal = Object.values(selectedAppliances).reduce((sum, appliance) => {
+      const appliancePower = appliance.maxPower || appliance.power;
+      console.log(`${appliance.name}: Power ${appliancePower}W, Quantity ${appliance.quantity || 1}`);
+      return sum + (appliancePower * (appliance.quantity || 1));
+    }, 0);
+    
+    console.log(`Total max power: ${maxPowerTotal}W`);
+    const newInverterSize = Math.ceil(maxPowerTotal / 100) * 100;
+    console.log(`Calculated inverter size: ${newInverterSize}W`);
+    setInverterSize(newInverterSize);
 
-    setPowerSources(newPowerSources);
-  }, [appliances, useGridPower, useSolarPanels, gridHours, batteryUsageHours, selectedAppliances]);
+    const dailyConsumption = calculateTotalKWh() * 1000; // Convert to Wh
+    
+    // Calculate battery size based on backup hours
+    const newBatterySize = Math.max(
+      Math.ceil((dailyConsumption * batteryBackupHours / 24) / 0.8 / 100) * 100,
+      MIN_BATTERY_SIZE
+    );
+    console.log(`Calculated battery size: ${newBatterySize}Wh for ${batteryBackupHours} hours backup`);
+    setBatterySize(newBatterySize);
+
+    if (useSolarPanels) {
+      const dailySolarProduction = numberOfPanels * panelWattage * PEAK_SUN_HOURS;
+      const excessSolarEnergy = Math.max(0, dailySolarProduction - dailyConsumption);
+      const newEffectiveBatterySize = Math.max(
+        MIN_BATTERY_SIZE,
+        newBatterySize - excessSolarEnergy
+      );
+      setEffectiveBatterySize(Math.round(newEffectiveBatterySize / 100) * 100);
+      setSolarPanelSize(dailySolarProduction);
+    } else {
+      setEffectiveBatterySize(newBatterySize);
+    }
+  }
 
   useEffect(() => {
-    calculateAndSetSystemSize();
-  }, [calculateAndSetSystemSize]);
+    calculateSystemSize();
+  }, [selectedAppliances, batteryBackupHours, useSolarPanels, numberOfPanels, panelWattage]);
 
   const handleBatteryUsageHoursChange = (event) => {
     setBatteryUsageHours(parseInt(event.target.value));
@@ -114,6 +138,14 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
 
   const handleGridHoursChange = (event) => {
     setGridHours(parseInt(event.target.value));
+  };
+
+  const handleBatteryBackupHoursChange = (event) => {
+    setBatteryBackupHours(Number(event.target.value));
+  };
+
+  const handleUseSolarPanelsChange = () => {
+    setUseSolarPanels(!useSolarPanels);
   };
 
   const handleApplianceSelect = (appliance) => {
@@ -150,11 +182,6 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
     }
   };
 
-  const calculateDailyKWh = (appliance) => {
-    const kWh = ((appliance.power * appliance.hoursPerDay * (appliance.quantity || 1)) / 1000).toFixed(2);
-    return isNaN(kWh) ? '0' : kWh;
-  };
-
   const formatDuration = (hours) => {
     return `${hours}h/day`;
   };
@@ -181,12 +208,6 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
     }
   };
 
-  const calculateTotalKWh = () => {
-    return Object.values(selectedAppliances).reduce((total, appliance) => {
-      return total + Number(calculateDailyKWh(appliance));
-    }, 0).toFixed(2);
-  };
-
   const toggleSection = (section) => {
     console.log('Toggling section:', section);
     setVisibleSections(prev =>
@@ -204,6 +225,14 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
         isEditing: !prev[applianceName].isEditing
       }
     }));
+  };
+
+  const handleNumberOfPanelsChange = (event) => {
+    setNumberOfPanels(Number(event.target.value));
+  };
+
+  const handlePanelWattageChange = (event) => {
+    setPanelWattage(Number(event.target.value));
   };
 
   return (
@@ -302,6 +331,74 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
             );
           })}
         </div>
+      </div>
+
+      <div className="floating-system-info">
+        <h3>System Size</h3>
+        <div className="system-info-item">
+          <span>Inverter:</span>
+          <span>{inverterSize} W</span>
+        </div>
+        <div className="system-info-item">
+          <span>Battery:</span>
+          <span>{batterySize} Wh</span>
+        </div>
+        {useSolarPanels && (
+          <div className="system-info-item">
+            <span>Effective Battery:</span>
+            <span>{effectiveBatterySize} Wh</span>
+          </div>
+        )}
+        <div className="battery-backup-slider">
+          <label htmlFor="battery-backup-hours">Battery Backup Hours: {batteryBackupHours}</label>
+          <input
+            type="range"
+            id="battery-backup-hours"
+            min="1"
+            max="48"
+            value={batteryBackupHours}
+            onChange={handleBatteryBackupHoursChange}
+          />
+        </div>
+        <div className="solar-panel-toggle">
+          <label>
+            <input
+              type="checkbox"
+              checked={useSolarPanels}
+              onChange={handleUseSolarPanelsChange}
+            />
+            Use Solar Panels
+          </label>
+        </div>
+        {useSolarPanels && (
+          <>
+            <div className="solar-panel-input">
+              <label htmlFor="number-of-panels">Number of Panels:</label>
+              <input
+                type="number"
+                id="number-of-panels"
+                min="1"
+                value={numberOfPanels}
+                onChange={handleNumberOfPanelsChange}
+              />
+            </div>
+            <div className="solar-panel-input">
+              <label htmlFor="panel-wattage">Panel Wattage (W):</label>
+              <input
+                type="number"
+                id="panel-wattage"
+                min="100"
+                step="50"
+                value={panelWattage}
+                onChange={handlePanelWattageChange}
+              />
+            </div>
+            <div className="system-info-item">
+              <span>Total Solar Capacity:</span>
+              <span>{solarPanelSize} Wh/day</span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
