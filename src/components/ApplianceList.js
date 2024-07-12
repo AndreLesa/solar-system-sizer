@@ -56,7 +56,7 @@ const roomAppliances = {
 
 const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeAppliance }) => {
   const [selectedAppliances, setSelectedAppliances] = useState({});
-  const [newAppliance, setNewAppliance] = useState({ name: '', power: '', hoursPerDay: '', hasMotor: false });
+  const [newAppliance, setNewAppliance] = useState({ name: '', power: '', hoursPerDay: '', hasPump: false });
   const [newlyAddedAppliance, setNewlyAddedAppliance] = useState(null);
   const [visibleSections, setVisibleSections] = useState(Object.keys(roomAppliances));
   const [batteryUsageHours, setBatteryUsageHours] = useState(12);
@@ -225,11 +225,11 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
         power: Math.round(Number(newAppliance.power)),
         defaultMinutes: Number(newAppliance.hoursPerDay) * 60,
         quantity: 1,
-        maxPower: newAppliance.hasMotor ? Math.round(Number(newAppliance.power) * 2.2) : undefined
+        maxPower: newAppliance.hasPump ? Math.round(Number(newAppliance.power) * 2.2) : undefined
       };
       addAppliance(newApplianceItem);
       setNewlyAddedAppliance(newApplianceItem.name);
-      setNewAppliance({ name: '', power: '', hoursPerDay: '', hasMotor: false });
+      setNewAppliance({ name: '', power: '', hoursPerDay: '', hasPump: false });
       handleApplianceSelect('Other', newApplianceItem);
       roomAppliances.Other.push(newApplianceItem);
     }
@@ -330,33 +330,44 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
 
       <div className="add-appliance-form">
         <h2>Add New Appliance</h2>
-        <input
-          type="text"
-          value={newAppliance.name}
-          onChange={(e) => handleNewApplianceChange('name', e.target.value)}
-          placeholder="Appliance Name"
-        />
-        <input
-          type="number"
-          value={newAppliance.power}
-          onChange={(e) => handleNewApplianceChange('power', e.target.value)}
-          placeholder="Power (W)"
-        />
-        <input
-          type="number"
-          value={newAppliance.hoursPerDay}
-          onChange={(e) => handleNewApplianceChange('hoursPerDay', e.target.value)}
-          placeholder="Hours per day"
-        />
-        <label>
+        <div className="form-group">
+          <label>Appliance Name</label>
           <input
-            type="checkbox"
-            checked={newAppliance.hasMotor}
-            onChange={(e) => handleNewApplianceChange('hasMotor', e.target.checked)}
+            type="text"
+            value={newAppliance.name}
+            onChange={(e) => handleNewApplianceChange('name', e.target.value)}
+            placeholder="Appliance Name"
           />
-          Has Motor (Max power will be set to 2.2 times the wattage)
-        </label>
-        <p className="explainer-text">Note: Appliances with Motors require a higher max power to account for the initial surge when the motor starts.</p>
+        </div>
+        <div className="form-group">
+          <label>Power (W)</label>
+          <input
+            type="number"
+            value={newAppliance.power}
+            onChange={(e) => handleNewApplianceChange('power', e.target.value)}
+            placeholder="Power (W)"
+          />
+        </div>
+        <div className="form-group">
+          <label>Hours per day</label>
+          <input
+            type="number"
+            value={newAppliance.hoursPerDay}
+            onChange={(e) => handleNewApplianceChange('hoursPerDay', e.target.value)}
+            placeholder="Hours per day"
+          />
+        </div>
+        <div className="form-group">
+          <label>
+            <input
+              type="checkbox"
+              checked={newAppliance.hasPump}
+              onChange={(e) => handleNewApplianceChange('hasPump', e.target.checked)}
+            />
+            Has Pump
+          </label>
+          <p className="explainer-text">Note: Appliances with pumps require a higher max power to account for the initial surge when the pump starts. The max power will be set to 2.2 times the wattage entered.</p>
+        </div>
         <button onClick={handleAddNewAppliance}>Add Appliance</button>
       </div>
 
@@ -381,32 +392,31 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
           })}
         </div>
       </div>
-
-      <div className="floating-system-info">
-        <h3 style={{ textAlign: 'center' }}>Recommended<br />System Size</h3>
-        <div className="system-info-item" style={{ textAlign: 'center' }}>
-          <span>Minimum Inverter Size: </span>
+      <div className="floating-system-info" style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '8px', maxWidth: '300px', margin: '0 auto' }}>
+        <h3 style={{ textAlign: 'center', fontSize: '1.2em' }}>Recommended<br />System Size</h3>
+        <div className="system-info-item" style={{ textAlign: 'center', marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
+          <span>Minimum Inverter Size:</span>
           <span>{inverterSize} W</span>
         </div>
-        <div className="system-info-item">
-          <span>Minimum Battery Size: </span>
+        <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
+          <span>Minimum Battery Size:</span>
           <span>{batterySize} Wh</span>
         </div>
         {useSolarPanels && (
           <>
-            <div className="system-info-item">
+            <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
               <span>Effective Battery:</span>
               <span>{effectiveBatterySize} Wh</span>
             </div>
-            <div className="system-info-item">
+            <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
               <span>Recommended Solar Size:</span>
               <span>{solarPanelSize} W</span>
             </div>
-            <div className="system-info-item">
+            <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
               <span>Number of Panels:</span>
               <span>{numberOfPanels}</span>
             </div>
-            <div className="solar-panel-input">
+            <div className="solar-panel-input" style={{ marginBottom: '10px' }}>
               <label htmlFor="panel-wattage">Panel Wattage (W):</label>
               <input
                 type="number"
@@ -415,11 +425,12 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
                 step="50"
                 value={panelWattage}
                 onChange={handlePanelWattageChange}
+                style={{ width: '100%', padding: '5px', borderRadius: '4px', border: '1px solid #ccc' }}
               />
             </div>
           </>
         )}
-        <div className="battery-backup-slider">
+        <div className="battery-backup-slider" style={{ marginBottom: '10px' }}>
           <label htmlFor="battery-backup-hours">Battery Backup Hours: {batteryBackupHours}</label>
           <input
             type="range"
@@ -428,9 +439,10 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
             max="48"
             value={batteryBackupHours}
             onChange={handleBatteryBackupHoursChange}
+            style={{ width: '100%' }}
           />
         </div>
-        <div className="solar-panel-toggle">
+        <div className="solar-panel-toggle" style={{ textAlign: 'center', marginBottom: '10px' }}>
           <label>
             <input
               type="checkbox"
@@ -440,8 +452,15 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
             Use Solar Panels
           </label>
         </div>
+        <div className="report-buttons" style={{ textAlign: 'center', marginTop: '20px' }}>
+          <button style={{ padding: '10px 20px', margin: '5px', borderRadius: '5px', border: '1px solid #ccc', backgroundColor: '#f0f0f0', cursor: 'pointer' }}>
+            Print Report
+          </button>
+          <button style={{ padding: '10px 20px', margin: '5px', borderRadius: '5px', border: '1px solid #ccc', backgroundColor: '#f0f0f0', cursor: 'pointer' }}>
+            Download PDF
+          </button>
+        </div>
       </div>
-
       <SystemReport
         selectedAppliances={selectedAppliances}
         inverterSize={inverterSize}

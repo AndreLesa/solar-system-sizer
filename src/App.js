@@ -61,8 +61,7 @@ const App = () => {
         updateAppliance={updateAppliance}
         removeAppliance={removeAppliance}
       />
-      <TotalConsumption totalConsumption={totalConsumption} />
-      <SolarSystemSuggestion totalConsumption={totalConsumption} />
+
     </div>
   );
 };
