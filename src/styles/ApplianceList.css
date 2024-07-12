@@ -21,58 +21,36 @@
 }
 
 .appliance-card {
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.appliance-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 10px;
+  background-color: #fff;
+  transition: box-shadow 0.3s ease;
 }
 
 .appliance-card.selected {
-  background-color: #e6f3ff;
-  border: 2px solid #4682b4;
+  border: 2px solid #007bff;
+  background-color: #f0f8ff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.appliance-card h3 {
-  margin: 0 0 15px 0;
-  font-size: 1.2rem;
-  color: #333;
-}
-
-.appliance-card .power {
-  font-size: 1.4em;
+.appliance-card .quantity {
   font-weight: bold;
-  color: #4682b4;
-  margin: 10px 0;
-}
-
-.appliance-card .duration {
-  font-size: 1em;
-  color: #666;
-  margin-bottom: 15px;
+  color: #333;
+  margin-top: 5px;
 }
 
 .edit-controls {
-  margin-top: auto;
+  margin-top: 10px;
 }
 
 .edit-controls button {
   background-color: #4682b4;
   color: white;
   border: none;
-  padding: 8px 15px;
-  border-radius: 20px;
+  padding: 5px 10px;
+  border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -86,6 +64,10 @@
   flex-direction: column;
   gap: 10px;
   margin-top: 10px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .edit-fields label {
@@ -95,10 +77,44 @@
 }
 
 .edit-fields input {
-  width: 70px;
+  width: 60px;
   padding: 5px;
   border: 1px solid #ddd;
   border-radius: 4px;
+}
+
+.add-appliance-form {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.add-appliance-form label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.add-appliance-form input[type="text"], .add-appliance-form input[type="number"] {
+  width: 100%;
+  height: 30px;
+  margin-left: 10px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.add-appliance-form label[for="hasPump"] {
+  margin-top: 10px;
+}
+
+.add-appliance-form .explainer-text {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 10px;
 }
 
 .floating-appliance-info {
@@ -137,61 +153,6 @@
   text-align: center;
 }
 
-.selected-appliance-info h4 {
-  margin: 20px 0 10px 0;
-  font-size: 1.1rem;
-  color: #4682b4;
-}
-
-.room-group {
-  margin-bottom: 15px;
-  background-color: #f0f8ff;
-  border-radius: 8px;
-  padding: 10px;
-}
-
-.room-group h5 {
-  margin: 0 0 8px 0;
-  color: #333;
-  font-size: 1rem;
-}
-
-.room-group p {
-  margin: 5px 0;
-  font-size: 0.9em;
-  color: #555;
-}
-
-.add-appliance-form {
-  margin-top: 30px;
-  padding: 20px;
-  background-color: #f0f8ff;
-  border-radius: 8px;
-}
-
-.add-appliance-form h2 {
-  margin-top: 0;
-  color: #4682b4;
-}
-
-.add-appliance-form input {
-  display: block;
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.add-appliance-form button {
-  background-color: #4682b4;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
 .floating-system-info {
   position: fixed;
   bottom: 20px;
@@ -202,6 +163,8 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   z-index: 1000;
   max-width: 300px;
+  max-height: 70vh;
+  overflow-y: auto;
   transition: all 0.3s ease;
   backdrop-filter: blur(5px);
 }
@@ -218,58 +181,84 @@
   padding-bottom: 10px;
 }
 
-.system-info-item {
+.floating-system-info .system-info-item {
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
-  font-size: 1.1rem;
 }
 
-.system-info-item span:last-child {
+.floating-system-info .system-info-item span {
   font-weight: bold;
-  color: #4682b4;
+  font-size: 1rem;
 }
 
-.battery-backup-slider {
-  margin-top: 15px;
+.floating-system-info .battery-backup-slider, .floating-system-info .solar-panel-toggle, .floating-system-info .solar-panel-input {
+  margin-top: 10px;
 }
 
-.battery-backup-slider label {
+.floating-system-info .solar-panel-input label {
   display: block;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+.floating-system-info .solar-panel-input input {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.system-report {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.system-report h2 {
+  margin-top: 0;
+  text-align: center;
+}
+
+.system-report .report-section {
+  margin-bottom: 20px;
+}
+
+.system-report .report-section h3 {
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.system-report .report-section ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.system-report .report-section ul li {
   margin-bottom: 5px;
 }
 
-.battery-backup-slider input[type="range"] {
-  width: 100%;
-  margin-top: 5px;
-}
-
-.solar-panel-toggle {
-  margin-top: 15px;
-}
-
-.solar-panel-toggle label {
+.report-actions {
   display: flex;
-  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.solar-panel-toggle input[type="checkbox"] {
-  margin-right: 10px;
+.report-actions button {
+  background-color: #4682b4;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.solar-panel-input {
-  margin-top: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.solar-panel-input label {
-  flex: 1;
-}
-
-.solar-panel-input input {
-  width: 80px;
-  padding: 5px;
-  margin-left: 10px;
+.report-actions button:hover {
+  background-color: #3a6d99;
 }

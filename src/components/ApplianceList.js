@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { calculateSystemSize } from '../utils/calculateSystemSize';
 import '../styles/ApplianceList.css';
+import SystemReport from './SystemReport';
 
 const roomAppliances = {
   Lights: [
@@ -55,7 +56,7 @@ const roomAppliances = {
 
 const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeAppliance }) => {
   const [selectedAppliances, setSelectedAppliances] = useState({});
-  const [newAppliance, setNewAppliance] = useState({ name: '', power: '', hoursPerDay: '' });
+  const [newAppliance, setNewAppliance] = useState({ name: '', power: '', hoursPerDay: '', hasMotor: false });
   const [newlyAddedAppliance, setNewlyAddedAppliance] = useState(null);
   const [visibleSections, setVisibleSections] = useState(Object.keys(roomAppliances));
   const [batteryUsageHours, setBatteryUsageHours] = useState(12);
@@ -223,11 +224,12 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
         ...newAppliance,
         power: Math.round(Number(newAppliance.power)),
         defaultMinutes: Number(newAppliance.hoursPerDay) * 60,
-        quantity: 1
+        quantity: 1,
+        maxPower: newAppliance.hasMotor ? Math.round(Number(newAppliance.power) * 2.2) : undefined
       };
       addAppliance(newApplianceItem);
       setNewlyAddedAppliance(newApplianceItem.name);
-      setNewAppliance({ name: '', power: '', hoursPerDay: '' });
+      setNewAppliance({ name: '', power: '', hoursPerDay: '', hasMotor: false });
       handleApplianceSelect('Other', newApplianceItem);
       roomAppliances.Other.push(newApplianceItem);
     }
@@ -346,6 +348,15 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
           onChange={(e) => handleNewApplianceChange('hoursPerDay', e.target.value)}
           placeholder="Hours per day"
         />
+        <label>
+          <input
+            type="checkbox"
+            checked={newAppliance.hasMotor}
+            onChange={(e) => handleNewApplianceChange('hasMotor', e.target.checked)}
+          />
+          Has Motor (Max power will be set to 2.2 times the wattage)
+        </label>
+        <p className="explainer-text">Note: Appliances with Motors require a higher max power to account for the initial surge when the motor starts.</p>
         <button onClick={handleAddNewAppliance}>Add Appliance</button>
       </div>
 
@@ -383,7 +394,10 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
         </div>
         {useSolarPanels && (
           <>
-  
+            <div className="system-info-item">
+              <span>Effective Battery:</span>
+              <span>{effectiveBatterySize} Wh</span>
+            </div>
             <div className="system-info-item">
               <span>Recommended Solar Size:</span>
               <span>{solarPanelSize} W</span>
@@ -427,6 +441,17 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
           </label>
         </div>
       </div>
+
+      <SystemReport
+        selectedAppliances={selectedAppliances}
+        inverterSize={inverterSize}
+        batterySize={batterySize}
+        effectiveBatterySize={effectiveBatterySize}
+        useSolarPanels={useSolarPanels}
+        solarPanelSize={solarPanelSize}
+        numberOfPanels={numberOfPanels}
+        panelWattage={panelWattage}
+      />
     </div>
   );
 };
