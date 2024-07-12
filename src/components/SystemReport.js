@@ -24,10 +24,7 @@ const SystemReport = ({ selectedAppliances, inverterSize, batterySize, effective
 
   return (
     <div>
-      <div className="report-actions">
-        <button onClick={handlePrint}>Print Report</button>
-        <button onClick={handleDownloadPDF}>Download PDF</button>
-      </div>
+
       <div className="system-report" ref={reportRef} style={{ padding: '20px', fontSize: '12px' }}>
         <h2 style={{ fontSize: '16px' }}>System Report</h2>
         <div className="report-section" style={{ marginBottom: '20px' }}>
@@ -66,6 +63,10 @@ const SystemReport = ({ selectedAppliances, inverterSize, batterySize, effective
             )}
           </ul>
         </div>
+      </div>
+      <div className="report-actions">
+        <button onClick={handlePrint}>Print Report</button>
+        <button onClick={handleDownloadPDF}>Download PDF</button>
       </div>
     </div>
   );

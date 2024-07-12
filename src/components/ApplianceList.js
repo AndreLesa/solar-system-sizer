@@ -452,14 +452,7 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
             Use Solar Panels
           </label>
         </div>
-        <div className="report-buttons" style={{ textAlign: 'center', marginTop: '20px' }}>
-          <button style={{ padding: '10px 20px', margin: '5px', borderRadius: '5px', border: '1px solid #ccc', backgroundColor: '#f0f0f0', cursor: 'pointer' }}>
-            Print Report
-          </button>
-          <button style={{ padding: '10px 20px', margin: '5px', borderRadius: '5px', border: '1px solid #ccc', backgroundColor: '#f0f0f0', cursor: 'pointer' }}>
-            Download PDF
-          </button>
-        </div>
+
       </div>
       <SystemReport
         selectedAppliances={selectedAppliances}
