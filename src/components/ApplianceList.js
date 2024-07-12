@@ -31,9 +31,9 @@ const roomAppliances = {
     { name: 'Bedside Lamp', power: 40, defaultMinutes: 120 },
   ],
   Bathroom: [
-    { name: 'Hair Dryer', power: 1500, defaultMinutes: 10 },
+    { name: 'Hair Dryer', power: 1500, defaultMinutes: 20 },
     { name: 'Electric Toothbrush Charger', power: 5, defaultMinutes: 1440 },
-    { name: 'Electric Shaver', power: 15, defaultMinutes: 10 },
+    { name: 'Electric Shaver', power: 15, defaultMinutes: 20 },
   ],
   LaundryRoom: [
     { name: 'Washing Machine', power: 500, defaultMinutes: 60 },
@@ -43,7 +43,7 @@ const roomAppliances = {
   HomeOffice: [
     { name: 'Desktop Computer', power: 200, defaultMinutes: 240 },
     { name: 'Monitor', power: 30, defaultMinutes: 240 },
-    { name: 'Printer', power: 50, defaultMinutes: 10 },
+    { name: 'Printer', power: 50, defaultMinutes: 20 },
     { name: 'Router', power: 10, defaultMinutes: 1440 },
   ],
   Garage: [
@@ -77,7 +77,7 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
   const [solarPanelSize, setSolarPanelSize] = useState(0);
 
   const PEAK_SUN_HOURS = 5;
-  const MIN_BATTERY_SIZE = 2556; // Minimum battery size in Wh
+  const MIN_BATTERY_SIZE = 1000; // Minimum battery size in Wh
 
   function calculateDailyKWh(appliance) {
     const kWh = ((appliance.power * appliance.hoursPerDay * (appliance.quantity || 1)) / 1000).toFixed(2);
@@ -114,15 +114,22 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
     console.log(`Calculated battery size: ${newBatterySize}Wh for ${batteryBackupHours} hours backup`);
     setBatterySize(newBatterySize);
 
+    // Calculate recommended solar size
+    const totalEnergyNeeded = dailyConsumption + newBatterySize;
+    const recommendedSolarSize = Math.ceil(totalEnergyNeeded / PEAK_SUN_HOURS / 100) * 100;
+    console.log(`Recommended solar size: ${recommendedSolarSize}W`);
+    setSolarPanelSize(recommendedSolarSize);
+
     if (useSolarPanels) {
-      const dailySolarProduction = numberOfPanels * panelWattage * PEAK_SUN_HOURS;
+      const calculatedNumberOfPanels = Math.ceil(recommendedSolarSize / panelWattage);
+      setNumberOfPanels(calculatedNumberOfPanels);
+      const dailySolarProduction = calculatedNumberOfPanels * panelWattage * PEAK_SUN_HOURS;
       const excessSolarEnergy = Math.max(0, dailySolarProduction - dailyConsumption);
       const newEffectiveBatterySize = Math.max(
         MIN_BATTERY_SIZE,
         newBatterySize - excessSolarEnergy
       );
       setEffectiveBatterySize(Math.round(newEffectiveBatterySize / 100) * 100);
-      setSolarPanelSize(dailySolarProduction);
     } else {
       setEffectiveBatterySize(newBatterySize);
     }
@@ -130,7 +137,7 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
 
   useEffect(() => {
     calculateSystemSize();
-  }, [selectedAppliances, batteryBackupHours, useSolarPanels, numberOfPanels, panelWattage]);
+  }, [selectedAppliances, batteryBackupHours, useSolarPanels, panelWattage]);
 
   const handleBatteryUsageHoursChange = (event) => {
     setBatteryUsageHours(parseInt(event.target.value));
@@ -148,16 +155,17 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
     setUseSolarPanels(!useSolarPanels);
   };
 
-  const handleApplianceSelect = (appliance) => {
-    console.log('Selected appliance:', appliance);
+  const handleApplianceSelect = (room, appliance) => {
+    const applianceKey = `${room}-${appliance.name}`;
+    console.log('Selected appliance:', applianceKey);
     setSelectedAppliances(prev => {
-      if (prev[appliance.name]) {
-        const { [appliance.name]: _, ...rest } = prev;
+      if (prev[applianceKey]) {
+        const { [applianceKey]: _, ...rest } = prev;
         return rest;
       } else {
         return {
           ...prev,
-          [appliance.name]: {
+          [applianceKey]: {
             ...appliance,
             quantity: 1,
             hoursPerDay: (appliance.defaultMinutes / 60).toFixed(2),
@@ -168,22 +176,39 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
     });
   };
 
-  const handleInputChange = (applianceName, field, value) => {
-    console.log(`Input change - Appliance: ${applianceName}, Field: ${field}, Value: ${value}`);
+  const handleInputChange = (applianceKey, field, value) => {
+    console.log(`Input change - Appliance: ${applianceKey}, Field: ${field}, Value: ${value}`);
     const parsedValue = value === '' ? '' : parseFloat(value);
     if (value === '' || !isNaN(parsedValue)) {
       setSelectedAppliances(prev => ({
         ...prev,
-        [applianceName]: {
-          ...prev[applianceName],
+        [applianceKey]: {
+          ...prev[applianceKey],
           [field]: field === 'power' ? Math.round(parsedValue) : parsedValue
         }
       }));
     }
   };
 
+  const handleHoursChange = (applianceKey, value) => {
+    const parsedValue = parseFloat(value);
+    if (!isNaN(parsedValue)) {
+      const roundedValue = Math.round(parsedValue * 2) / 2; // Round to nearest 0.5 (30 minutes)
+      setSelectedAppliances(prev => ({
+        ...prev,
+        [applianceKey]: {
+          ...prev[applianceKey],
+          hoursPerDay: roundedValue
+        }
+      }));
+    }
+  };
+
   const formatDuration = (hours) => {
-    return `${hours}h/day`;
+    const totalMinutes = Math.round(hours * 60);
+    const hoursPart = Math.floor(totalMinutes / 60);
+    const minutesPart = totalMinutes % 60;
+    return `${hoursPart}h ${minutesPart}m/day`;
   };
 
   const handleNewApplianceChange = (field, value) => {
@@ -203,7 +228,7 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
       addAppliance(newApplianceItem);
       setNewlyAddedAppliance(newApplianceItem.name);
       setNewAppliance({ name: '', power: '', hoursPerDay: '' });
-      handleApplianceSelect(newApplianceItem);
+      handleApplianceSelect('Other', newApplianceItem);
       roomAppliances.Other.push(newApplianceItem);
     }
   };
@@ -217,18 +242,14 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
     );
   };
 
-  const handleEditAppliance = (applianceName) => {
+  const handleEditAppliance = (applianceKey) => {
     setSelectedAppliances(prev => ({
       ...prev,
-      [applianceName]: {
-        ...prev[applianceName],
-        isEditing: !prev[applianceName].isEditing
+      [applianceKey]: {
+        ...prev[applianceKey],
+        isEditing: !prev[applianceKey].isEditing
       }
     }));
-  };
-
-  const handleNumberOfPanelsChange = (event) => {
-    setNumberOfPanels(Number(event.target.value));
   };
 
   const handlePanelWattageChange = (event) => {
@@ -241,49 +262,66 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
         <div key={room} className="room-section">
           <h2>{room}</h2>
           <div className="appliance-grid">
-            {appliances.map(appliance => (
-              <div
-                key={appliance.name}
-                className={`appliance-card ${selectedAppliances[appliance.name] ? 'selected' : ''}`}
-                onClick={() => handleApplianceSelect(appliance)}
-              >
-                <h3>{appliance.name}</h3>
-                <p className="power">{selectedAppliances[appliance.name]?.power || appliance.power}W</p>
-                <p className="duration">{formatDuration(appliance.defaultMinutes / 60)}</p>
-                {selectedAppliances[appliance.name] && (
-                  <div className="edit-controls">
-                    <button onClick={(e) => {
-                      e.stopPropagation();
-                      handleEditAppliance(appliance.name);
-                    }}>
-                      {selectedAppliances[appliance.name].isEditing ? 'Save' : 'Edit'}
-                    </button>
-                    {selectedAppliances[appliance.name].isEditing && (
-                      <div className="edit-fields">
-                        <label>
-                          Qty:
-                          <input
-                            type="number"
-                            value={selectedAppliances[appliance.name].quantity}
-                            onChange={(e) => handleInputChange(appliance.name, 'quantity', e.target.value)}
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        </label>
-                        <label>
-                          Watts:
-                          <input
-                            type="number"
-                            value={selectedAppliances[appliance.name].power}
-                            onChange={(e) => handleInputChange(appliance.name, 'power', e.target.value)}
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        </label>
+            {appliances.map(appliance => {
+              const applianceKey = `${room}-${appliance.name}`;
+              const selectedAppliance = selectedAppliances[applianceKey];
+              return (
+                <div
+                  key={applianceKey}
+                  className={`appliance-card ${selectedAppliance ? 'selected' : ''}`}
+                  onClick={() => handleApplianceSelect(room, appliance)}
+                >
+                  <h3>{appliance.name}</h3>
+                  <p className="power">{selectedAppliance?.power || appliance.power}W</p>
+                  <p className="duration">{selectedAppliance ? formatDuration(selectedAppliance.hoursPerDay) : formatDuration(appliance.defaultMinutes / 60)}</p>
+                  {selectedAppliance && (
+                    <>
+                      <p className="quantity">Quantity: {selectedAppliance.quantity}</p>
+                      <div className="edit-controls">
+                        <button onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditAppliance(applianceKey);
+                        }}>
+                          {selectedAppliance.isEditing ? 'Save' : 'Edit'}
+                        </button>
+                        {selectedAppliance.isEditing && (
+                          <div className="edit-fields">
+                            <label>
+                              Qty:
+                              <input
+                                type="number"
+                                value={selectedAppliance.quantity}
+                                onChange={(e) => handleInputChange(applianceKey, 'quantity', e.target.value)}
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </label>
+                            <label>
+                              Watts:
+                              <input
+                                type="number"
+                                value={selectedAppliance.power}
+                                onChange={(e) => handleInputChange(applianceKey, 'power', e.target.value)}
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </label>
+                            <label>
+                              Hours:
+                              <input
+                                type="number"
+                                step="0.5"
+                                value={selectedAppliance.hoursPerDay}
+                                onChange={(e) => handleHoursChange(applianceKey, e.target.value)}
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </label>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
+                    </>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       ))}
@@ -317,14 +355,14 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
         <div className="selected-appliance-info">
           <h4>Selected Appliances:</h4>
           {Object.entries(roomAppliances).map(([room, appliances]) => {
-            const selectedInRoom = appliances.filter(a => selectedAppliances[a.name]);
+            const selectedInRoom = appliances.filter(a => selectedAppliances[`${room}-${a.name}`]);
             if (selectedInRoom.length === 0) return null;
             return (
               <div key={room} className="room-group">
                 <h5>{room}</h5>
                 {selectedInRoom.map(appliance => (
                   <p key={appliance.name}>
-                    {appliance.name}: {calculateDailyKWh(selectedAppliances[appliance.name])} kWh/day
+                    {appliance.name}: {calculateDailyKWh(selectedAppliances[`${room}-${appliance.name}`])} kWh/day
                   </p>
                 ))}
               </div>
@@ -334,20 +372,38 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
       </div>
 
       <div className="floating-system-info">
-        <h3>System Size</h3>
-        <div className="system-info-item">
-          <span>Inverter:</span>
+        <h3 style={{ textAlign: 'center' }}>Recommended<br />System Size</h3>
+        <div className="system-info-item" style={{ textAlign: 'center' }}>
+          <span>Minimum Inverter Size: </span>
           <span>{inverterSize} W</span>
         </div>
         <div className="system-info-item">
-          <span>Battery:</span>
+          <span>Minimum Battery Size: </span>
           <span>{batterySize} Wh</span>
         </div>
         {useSolarPanels && (
-          <div className="system-info-item">
-            <span>Effective Battery:</span>
-            <span>{effectiveBatterySize} Wh</span>
-          </div>
+          <>
+  
+            <div className="system-info-item">
+              <span>Recommended Solar Size:</span>
+              <span>{solarPanelSize} W</span>
+            </div>
+            <div className="system-info-item">
+              <span>Number of Panels:</span>
+              <span>{numberOfPanels}</span>
+            </div>
+            <div className="solar-panel-input">
+              <label htmlFor="panel-wattage">Panel Wattage (W):</label>
+              <input
+                type="number"
+                id="panel-wattage"
+                min="100"
+                step="50"
+                value={panelWattage}
+                onChange={handlePanelWattageChange}
+              />
+            </div>
+          </>
         )}
         <div className="battery-backup-slider">
           <label htmlFor="battery-backup-hours">Battery Backup Hours: {batteryBackupHours}</label>
@@ -370,38 +426,10 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
             Use Solar Panels
           </label>
         </div>
-        {useSolarPanels && (
-          <>
-            <div className="solar-panel-input">
-              <label htmlFor="number-of-panels">Number of Panels:</label>
-              <input
-                type="number"
-                id="number-of-panels"
-                min="1"
-                value={numberOfPanels}
-                onChange={handleNumberOfPanelsChange}
-              />
-            </div>
-            <div className="solar-panel-input">
-              <label htmlFor="panel-wattage">Panel Wattage (W):</label>
-              <input
-                type="number"
-                id="panel-wattage"
-                min="100"
-                step="50"
-                value={panelWattage}
-                onChange={handlePanelWattageChange}
-              />
-            </div>
-            <div className="system-info-item">
-              <span>Total Solar Capacity:</span>
-              <span>{solarPanelSize} Wh/day</span>
-            </div>
-          </>
-        )}
       </div>
     </div>
   );
 };
 
 export default ApplianceList;
+
