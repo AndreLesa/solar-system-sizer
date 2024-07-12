@@ -258,6 +258,12 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
     setPanelWattage(Number(event.target.value));
   };
 
+  const [isOpen, setIsOpen] = useState(true);
+
+  const toggleOpen = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
     <div className="appliance-list">
       {Object.entries(roomAppliances).map(([room, appliances]) => (
@@ -393,66 +399,71 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
         </div>
       </div>
       <div className="floating-system-info" style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '8px', maxWidth: '300px', margin: '0 auto' }}>
-        <h3 style={{ textAlign: 'center', fontSize: '1.2em' }}>Recommended<br />System Size</h3>
-        <div className="system-info-item" style={{ textAlign: 'center', marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
-          <span>Minimum Inverter Size:</span>
-          <span>{inverterSize} W</span>
-        </div>
-        <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
-          <span>Minimum Battery Size:</span>
-          <span>{batterySize} Wh</span>
-        </div>
-        {useSolarPanels && (
+        <h3 style={{ textAlign: 'center', fontSize: '1.2em', cursor: 'pointer' }} onClick={toggleOpen}>
+          Recommended<br />System Size
+        </h3>
+        {isOpen && (
           <>
-            <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
-              <span>Effective Battery:</span>
-              <span>{effectiveBatterySize} Wh</span>
+            <div className="system-info-item" style={{ textAlign: 'center', marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
+              <span>Minimum Inverter Size:</span>
+              <span>{inverterSize} W</span>
             </div>
             <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
-              <span>Recommended Solar Size:</span>
-              <span>{solarPanelSize} W</span>
+              <span>Minimum Battery Size:</span>
+              <span>{batterySize} Wh</span>
             </div>
-            <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
-              <span>Number of Panels:</span>
-              <span>{numberOfPanels}</span>
-            </div>
-            <div className="solar-panel-input" style={{ marginBottom: '10px' }}>
-              <label htmlFor="panel-wattage">Panel Wattage (W):</label>
+            {useSolarPanels && (
+              <>
+                <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Effective Battery:</span>
+                  <span>{effectiveBatterySize} Wh</span>
+                </div>
+                <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Recommended Solar Size:</span>
+                  <span>{solarPanelSize} W</span>
+                </div>
+                <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Number of Panels:</span>
+                  <span>{numberOfPanels}</span>
+                </div>
+                <div className="solar-panel-input" style={{ marginBottom: '10px' }}>
+                  <label htmlFor="panel-wattage">Panel Wattage (W):</label>
+                  <input
+                    type="number"
+                    id="panel-wattage"
+                    min="100"
+                    step="50"
+                    value={panelWattage}
+                    onChange={handlePanelWattageChange}
+                    style={{ width: '100%', padding: '5px', borderRadius: '4px', border: '1px solid #ccc' }}
+                  />
+                </div>
+              </>
+            )}
+            <div className="battery-backup-slider" style={{ marginBottom: '10px' }}>
+              <label htmlFor="battery-backup-hours">Battery Backup Hours: {batteryBackupHours}</label>
               <input
-                type="number"
-                id="panel-wattage"
-                min="100"
-                step="50"
-                value={panelWattage}
-                onChange={handlePanelWattageChange}
-                style={{ width: '100%', padding: '5px', borderRadius: '4px', border: '1px solid #ccc' }}
+                type="range"
+                id="battery-backup-hours"
+                min="1"
+                max="48"
+                value={batteryBackupHours}
+                onChange={handleBatteryBackupHoursChange}
+                style={{ width: '100%' }}
               />
+            </div>
+            <div className="solar-panel-toggle" style={{ textAlign: 'center', marginBottom: '10px' }}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={useSolarPanels}
+                  onChange={handleUseSolarPanelsChange}
+                />
+                Use Solar Panels
+              </label>
             </div>
           </>
         )}
-        <div className="battery-backup-slider" style={{ marginBottom: '10px' }}>
-          <label htmlFor="battery-backup-hours">Battery Backup Hours: {batteryBackupHours}</label>
-          <input
-            type="range"
-            id="battery-backup-hours"
-            min="1"
-            max="48"
-            value={batteryBackupHours}
-            onChange={handleBatteryBackupHoursChange}
-            style={{ width: '100%' }}
-          />
-        </div>
-        <div className="solar-panel-toggle" style={{ textAlign: 'center', marginBottom: '10px' }}>
-          <label>
-            <input
-              type="checkbox"
-              checked={useSolarPanels}
-              onChange={handleUseSolarPanelsChange}
-            />
-            Use Solar Panels
-          </label>
-        </div>
-
       </div>
       <SystemReport
         selectedAppliances={selectedAppliances}
