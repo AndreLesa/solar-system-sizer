@@ -51,7 +51,9 @@ const roomAppliances = {
     { name: 'Garage Door Opener', power: 400, defaultMinutes: 5 },
     { name: 'Power Tools (avg)', power: 1000, defaultMinutes: 30 },
   ],
-  Other: [],
+  Other: [
+    { name: 'Submersible Pump', power: 1000, maxPower: 1500, defaultMinutes: 120 },
+  ],
 };
 
 const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeAppliance }) => {
