@@ -407,3 +407,11 @@
     margin: 0 auto;
   }
 }
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .floating-appliance-info.mobile,
+  .floating-system-info.mobile {
+    display: none;
+  }
+}

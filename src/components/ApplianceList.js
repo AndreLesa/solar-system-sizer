@@ -298,6 +298,8 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
     setSolarPanelSize(0);
   };
 
+  const isMobile = window.innerWidth <= 768;
+
   return (
     <div className="appliance-list">
       {showNotification && (
@@ -419,28 +421,30 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
         <button onClick={handleAddNewAppliance}>Add Appliance</button>
       </div>
 
-      <div className="floating-appliance-info">
+      <div className={`floating-appliance-info ${isMobile ? 'mobile' : ''}`}>
         <h3>Total Consumption</h3>
         <p className="total-kwh">{calculateTotalKWh()} kWh/day</p>
-        <div className="selected-appliance-info">
-          <h4>Selected Appliances:</h4>
-          {Object.entries(roomAppliances).map(([room, appliances]) => {
-            const selectedInRoom = appliances.filter(a => selectedAppliances[`${room}-${a.name}`]);
-            if (selectedInRoom.length === 0) return null;
-            return (
-              <div key={room} className="room-group">
-                <h5>{room}</h5>
-                {selectedInRoom.map(appliance => (
-                  <p key={appliance.name}>
-                    {appliance.name}: {calculateDailyKWh(selectedAppliances[`${room}-${appliance.name}`])} kWh/day
-                  </p>
-                ))}
-              </div>
-            );
-          })}
-        </div>
+        {!isMobile && (
+          <div className="selected-appliance-info">
+            <h4>Selected Appliances:</h4>
+            {Object.entries(roomAppliances).map(([room, appliances]) => {
+              const selectedInRoom = appliances.filter(a => selectedAppliances[`${room}-${a.name}`]);
+              if (selectedInRoom.length === 0) return null;
+              return (
+                <div key={room} className="room-group">
+                  <h5>{room}</h5>
+                  {selectedInRoom.map(appliance => (
+                    <p key={appliance.name}>
+                      {appliance.name}: {calculateDailyKWh(selectedAppliances[`${room}-${appliance.name}`])} kWh/day
+                    </p>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
-      <div className="floating-system-info" style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '8px', maxWidth: '250px', margin: '0 auto 20px auto' }}>
+      <div className={`floating-system-info ${isMobile ? 'mobile' : ''}`} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '8px', maxWidth: '250px', margin: '0 auto 20px auto' }}>
         <h3 style={{ textAlign: 'center', fontSize: '1.2em', cursor: 'pointer' }} onClick={toggleOpen}>
           Recommended<br />System Size
         </h3>
