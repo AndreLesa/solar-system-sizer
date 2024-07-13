@@ -53,6 +53,7 @@ const roomAppliances = {
   ],
   Other: [
     { name: 'Submersible Pump', power: 1000, maxPower: 1500, defaultMinutes: 120 },
+    { name: 'Booster Pump', power: 500, maxPower: 750, defaultMinutes: 60 },
   ],
 };
 
