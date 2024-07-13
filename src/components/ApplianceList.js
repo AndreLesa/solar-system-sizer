@@ -77,6 +77,8 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
   const [panelWattage, setPanelWattage] = useState(300);
   const [solarPanelSize, setSolarPanelSize] = useState(0);
 
+  const [showNotification, setShowNotification] = useState(false);
+
   const PEAK_SUN_HOURS = 5;
   const MIN_BATTERY_SIZE = 1000; // Minimum battery size in Wh
 
@@ -232,6 +234,10 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
       setNewAppliance({ name: '', power: '', hoursPerDay: '', hasPump: false });
       handleApplianceSelect('Other', newApplianceItem);
       roomAppliances.Other.push(newApplianceItem);
+
+      // Show notification
+      setShowNotification(true);
+      setTimeout(() => setShowNotification(false), 3000); // Hide after 3 seconds
     }
   };
 
@@ -266,6 +272,12 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
 
   return (
     <div className="appliance-list">
+      {showNotification && (
+        <div className="notification-popup">
+          Appliance added successfully!
+        </div>
+      )}
+
       {Object.entries(roomAppliances).map(([room, appliances]) => (
         <div key={room} className="room-section">
           <h2>{room}</h2>

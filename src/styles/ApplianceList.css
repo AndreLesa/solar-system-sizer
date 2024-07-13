@@ -186,14 +186,16 @@
   left: 20px;
   background-color: rgba(255, 255, 255, 0.95);
   border-radius: 15px;
-  padding: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   z-index: 1000;
-  max-width: 300px;
+  max-width: 250px;
   max-height: 70vh;
   overflow-y: auto;
   transition: all 0.3s ease;
   backdrop-filter: blur(5px);
+  margin: 0 auto 20px auto;
 }
 
 .floating-system-info:hover {
@@ -212,11 +214,12 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
+  font-size: 0.9em;
 }
 
 .floating-system-info .system-info-item span {
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 0.9em;
 }
 
 .floating-system-info .battery-backup-slider, .floating-system-info .solar-panel-toggle, .floating-system-info .solar-panel-input {
@@ -226,7 +229,7 @@
 .floating-system-info .solar-panel-input label {
   display: block;
   margin-bottom: 5px;
-  font-size: 0.9rem;
+  font-size: 0.9em;
 }
 
 .floating-system-info .solar-panel-input input {
@@ -234,7 +237,7 @@
   padding: 5px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 0.9rem;
+  font-size: 0.9em;
 }
 
 .system-report {
@@ -288,4 +291,82 @@
 
 .report-actions button:hover {
   background-color: #3a6d99;
+}
+
+.notification-popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+/* Mobile Styles */
+@media (max-width: 600px) {
+  .appliance-list {
+    padding: 10px;
+  }
+
+  .room-section h2 {
+    font-size: 1.2em;
+  }
+
+  .appliance-grid {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .appliance-card {
+    margin-bottom: 10px;
+  }
+
+  .add-appliance-form, .floating-appliance-info, .floating-system-info {
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .system-info-item, .solar-panel-input, .battery-backup-slider, .solar-panel-toggle {
+    text-align: left;
+  }
+
+  .system-info-item span {
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .solar-panel-input input, .battery-backup-slider input {
+    width: 100%;
+  }
+}
+
+/* Tablet Styles */
+@media (min-width: 601px) and (max-width: 1024px) {
+  .appliance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+  }
+
+  .add-appliance-form, .floating-appliance-info, .floating-system-info {
+    width: 80%;
+    margin: 0 auto;
+  }
+}
+
+/* Desktop Styles */
+@media (min-width: 1025px) {
+  .appliance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .add-appliance-form, .floating-appliance-info, .floating-system-info {
+    width: 60%;
+    margin: 0 auto;
+  }
 }
