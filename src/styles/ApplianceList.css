@@ -240,6 +240,20 @@
   font-size: 0.9em;
 }
 
+.floating-system-info .battery-type {
+  margin-top: 10px;
+}
+
+.floating-system-info .battery-type label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9em;
+}
+
+.floating-system-info .battery-type input {
+  margin-right: 10px;
+}
+
 .system-report {
   margin-top: 20px;
   padding: 20px;

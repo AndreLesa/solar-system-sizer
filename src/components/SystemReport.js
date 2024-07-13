@@ -11,10 +11,20 @@ const SystemReport = ({ selectedAppliances, inverterSize, batterySize, effective
   });
 
   const handleDownloadPDF = async () => {
-    const canvas = await html2canvas(reportRef.current, { scale: 2.5 }); // Increase scale for better quality
+    const canvas = await html2canvas(reportRef.current, {
+      scale: 3.5, // Increase scale for better quality
+      useCORS: true, // Enable cross-origin resource sharing
+      allowTaint: true, // Allow tainted images
+      logging: true, // Enable logging for debugging
+      backgroundColor: '#ffffff' // Set background color to white
+    });
     const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF();
-    pdf.addImage(imgData, 'PNG', 10, 10, 190, 277); // Adjusted to add padding
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'px',
+      format: [canvas.width, canvas.height] // Match PDF size to canvas size
+    });
+    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height); // Adjust to fit the entire canvas
     pdf.save('system-report.pdf');
   };
 
@@ -25,15 +35,14 @@ const SystemReport = ({ selectedAppliances, inverterSize, batterySize, effective
   return (
     <div>
 
-      <div className="system-report" ref={reportRef} style={{ padding: '20px', fontSize: '12px' }}>
-        <h2 style={{ fontSize: '16px' }}>System Report</h2>
+      <div className="system-report" ref={reportRef} style={{ padding: '20px', fontSize: '12px', textAlign: 'left' }}>
+        <h2 style={{ fontSize: '16px', textAlign: 'center' }}>System Report</h2>
         <div className="report-section" style={{ marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '14px' }}>Recommended System Size</h3>
+          <h3 style={{ fontSize: '14px', textAlign: 'left' }}>Recommended System Size</h3>
           <p>Minimum Inverter Size: {inverterSize} W</p>
           <p>Minimum Battery Size: {batterySize} Wh</p>
           {useSolarPanels && (
             <>
-              <p>Effective Battery Size: {effectiveBatterySize} Wh</p>
               <p>Recommended Solar Size: {solarPanelSize} W</p>
               <p>Number of Panels: {numberOfPanels}</p>
               <p>Panel Wattage: {panelWattage} W</p>
@@ -41,7 +50,7 @@ const SystemReport = ({ selectedAppliances, inverterSize, batterySize, effective
           )}
         </div>
         <div className="report-section" style={{ marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '14px' }}>Chosen Appliances</h3>
+          <h3 style={{ fontSize: '14px', textAlign: 'left' }}>Chosen Appliances</h3>
           <ul>
             {Object.entries(selectedAppliances).map(([key, appliance]) => (
               <li key={key}>
@@ -51,7 +60,7 @@ const SystemReport = ({ selectedAppliances, inverterSize, batterySize, effective
           </ul>
         </div>
         <div className="report-section" style={{ marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '14px' }}>Suggested Equipment</h3>
+          <h3 style={{ fontSize: '14px', textAlign: 'left' }}>Suggested Equipment</h3>
           <ul>
             <li>Inverter: {inverterSize} W</li>
             <li>Battery: {batterySize} Wh</li>

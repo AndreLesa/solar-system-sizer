@@ -86,6 +86,8 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
   const PEAK_SUN_HOURS = 5;
   const MIN_BATTERY_SIZE = 1000; // Minimum battery size in Wh
 
+  const [batteryType, setBatteryType] = useState('lithium'); // Add this state
+
   function calculateDailyKWh(appliance) {
     const kWh = ((appliance.power * appliance.hoursPerDay * (appliance.quantity || 1)) / 1000).toFixed(2);
     return isNaN(kWh) ? '0' : kWh;
@@ -119,7 +121,7 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
     
     // Calculate battery size based on backup hours
     const newBatterySize = Math.max(
-      Math.ceil((dailyConsumption * batteryBackupHours / 24) / 0.8 / 100) * 100,
+      Math.ceil((dailyConsumption * batteryBackupHours / 24) / (batteryType === 'lithium' ? 0.8 : 0.5) / 100) * 100,
       MIN_BATTERY_SIZE
     );
     console.log(`Calculated battery size: ${newBatterySize}Wh for ${batteryBackupHours} hours backup`);
@@ -148,7 +150,7 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
 
   useEffect(() => {
     calculateSystemSize();
-  }, [selectedAppliances, batteryBackupHours, useSolarPanels, panelWattage]);
+  }, [selectedAppliances, batteryBackupHours, useSolarPanels, panelWattage, batteryType]);
 
   const handleBatteryUsageHoursChange = (event) => {
     setBatteryUsageHours(parseInt(event.target.value));
@@ -298,6 +300,10 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
     setSolarPanelSize(0);
   };
 
+  const handleBatteryTypeChange = (event) => {
+    setBatteryType(event.target.value);
+  };
+
   const isMobile = window.innerWidth <= 768;
 
   return (
@@ -421,20 +427,31 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
         <button onClick={handleAddNewAppliance}>Add Appliance</button>
       </div>
 
-      <div className={`floating-appliance-info ${isMobile ? 'mobile' : ''}`}>
-        <h3>Total Consumption</h3>
-        <p className="total-kwh">{calculateTotalKWh()} kWh/day</p>
+      <div className={`floating-appliance-info ${isMobile ? 'mobile' : ''}`} style={{ 
+        position: 'fixed', 
+        bottom: '10px', 
+        right: '10px', 
+        width: '250px', 
+        padding: '15px', 
+        border: '1px solid #ccc', 
+        borderRadius: '8px', 
+        backgroundColor: '#fff', 
+        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', 
+        zIndex: 1000 
+      }}>
+        <h3 style={{ marginBottom: '10px' }}>Total Consumption</h3>
+        <p className="total-kwh" style={{ fontSize: '1.2em', fontWeight: 'bold' }}>{calculateTotalKWh()} kWh/day</p>
         {!isMobile && (
           <div className="selected-appliance-info">
-            <h4>Selected Appliances:</h4>
+            <h4 style={{ marginTop: '15px', marginBottom: '10px' }}>Selected Appliances:</h4>
             {Object.entries(roomAppliances).map(([room, appliances]) => {
               const selectedInRoom = appliances.filter(a => selectedAppliances[`${room}-${a.name}`]);
               if (selectedInRoom.length === 0) return null;
               return (
-                <div key={room} className="room-group">
-                  <h5>{room}</h5>
+                <div key={room} className="room-group" style={{ marginBottom: '10px' }}>
+                  <h5 style={{ marginBottom: '5px' }}>{room}</h5>
                   {selectedInRoom.map(appliance => (
-                    <p key={appliance.name}>
+                    <p key={appliance.name} style={{ margin: '2px 0' }}>
                       {appliance.name}: {calculateDailyKWh(selectedAppliances[`${room}-${appliance.name}`])} kWh/day
                     </p>
                   ))}
@@ -460,10 +477,6 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
             </div>
             {useSolarPanels && (
               <>
-                <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '0.9em' }}>
-                  <span>Eff Battery:</span>
-                  <span>{effectiveBatterySize} Wh</span>
-                </div>
                 <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '0.9em' }}>
                   <span>Rec Solar:</span>
                   <span>{solarPanelSize} W</span>
@@ -498,7 +511,17 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
                 style={{ width: '100%' }}
               />
             </div>
-            <div className="solar-panel-toggle" style={{ textAlign: 'center', marginBottom: '10px' }}>
+
+            <div className="battery-type">
+              <span>Battery Type</span>
+              <label>
+                <input type="radio" name="battery-type" value="lithium" checked={batteryType === 'lithium'} onChange={handleBatteryTypeChange} /> Lithium
+              </label>
+              <label>
+                <input type="radio" name="battery-type" value="lead-acid" checked={batteryType === 'lead-acid'} onChange={handleBatteryTypeChange} /> Lead Acid
+              </label>
+            </div>
+            <div className="solar-panel-toggle" style={{ marginBottom: '10px' }}>
               <label style={{ fontSize: '0.9em' }}>
                 <input
                   type="checkbox"
