@@ -346,6 +346,26 @@
     margin: 0 auto;
   }
 
+  .floating-appliance-info, .floating-system-info {
+    display: block; /* Ensure they are displayed */
+  }
+
+  .floating-appliance-info .content, .floating-system-info .content {
+    display: none; /* Hide the content by default */
+  }
+
+  .floating-appliance-info.collapsed .content, .floating-system-info.collapsed .content {
+    display: block; /* Show the content when not collapsed */
+  }
+
+  .floating-appliance-info .title, .floating-system-info .title {
+    cursor: pointer;
+    background-color: #4682b4;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+  }
+
   .system-info-item, .solar-panel-input, .battery-backup-slider, .solar-panel-toggle {
     text-align: left;
   }
