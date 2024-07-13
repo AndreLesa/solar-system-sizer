@@ -398,36 +398,36 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
           })}
         </div>
       </div>
-      <div className="floating-system-info" style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '8px', maxWidth: '300px', margin: '0 auto' }}>
+      <div className="floating-system-info" style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '8px', maxWidth: '250px', margin: '0 auto 20px auto' }}>
         <h3 style={{ textAlign: 'center', fontSize: '1.2em', cursor: 'pointer' }} onClick={toggleOpen}>
           Recommended<br />System Size
         </h3>
         {isOpen && (
           <>
-            <div className="system-info-item" style={{ textAlign: 'center', marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
-              <span>Minimum Inverter Size:</span>
+            <div className="system-info-item" style={{ textAlign: 'center', marginBottom: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '0.9em' }}>
+              <span>Min Inverter:</span>
               <span>{inverterSize} W</span>
             </div>
-            <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
-              <span>Minimum Battery Size:</span>
+            <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '0.9em' }}>
+              <span>Min Battery:</span>
               <span>{batterySize} Wh</span>
             </div>
             {useSolarPanels && (
               <>
-                <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Effective Battery:</span>
+                <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '0.9em' }}>
+                  <span>Eff Battery:</span>
                   <span>{effectiveBatterySize} Wh</span>
                 </div>
-                <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Recommended Solar Size:</span>
+                <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '0.9em' }}>
+                  <span>Rec Solar:</span>
                   <span>{solarPanelSize} W</span>
                 </div>
-                <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Number of Panels:</span>
+                <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '0.9em' }}>
+                  <span>Panels:</span>
                   <span>{numberOfPanels}</span>
                 </div>
                 <div className="solar-panel-input" style={{ marginBottom: '10px' }}>
-                  <label htmlFor="panel-wattage">Panel Wattage (W):</label>
+                  <label htmlFor="panel-wattage" style={{ fontSize: '0.9em' }}>Panel Wattage (W):</label>
                   <input
                     type="number"
                     id="panel-wattage"
@@ -441,7 +441,7 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
               </>
             )}
             <div className="battery-backup-slider" style={{ marginBottom: '10px' }}>
-              <label htmlFor="battery-backup-hours">Battery Backup Hours: {batteryBackupHours}</label>
+              <label htmlFor="battery-backup-hours" style={{ fontSize: '0.9em' }}>Battery Backup Hours: {batteryBackupHours}</label>
               <input
                 type="range"
                 id="battery-backup-hours"
@@ -453,7 +453,7 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
               />
             </div>
             <div className="solar-panel-toggle" style={{ textAlign: 'center', marginBottom: '10px' }}>
-              <label>
+              <label style={{ fontSize: '0.9em' }}>
                 <input
                   type="checkbox"
                   checked={useSolarPanels}
