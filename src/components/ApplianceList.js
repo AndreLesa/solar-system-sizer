@@ -543,6 +543,8 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
         solarPanelSize={solarPanelSize}
         numberOfPanels={numberOfPanels}
         panelWattage={panelWattage}
+        batteryType={batteryType}
+        batteryBackupHours={batteryBackupHours}
       />
       <p className="disclaimer">This is an estimate. Expert advice may be necessary.</p>
     </div>

@@ -3,7 +3,18 @@ import { useReactToPrint } from 'react-to-print';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-const SystemReport = ({ selectedAppliances, inverterSize, batterySize, effectiveBatterySize, useSolarPanels, solarPanelSize, numberOfPanels, panelWattage }) => {
+const SystemReport = ({
+  selectedAppliances,
+  inverterSize,
+  batterySize,
+  effectiveBatterySize,
+  useSolarPanels,
+  solarPanelSize,
+  numberOfPanels,
+  panelWattage,
+  batteryType,
+  batteryBackupHours
+}) => {
   const reportRef = useRef();
 
   const handlePrint = useReactToPrint({
@@ -12,19 +23,30 @@ const SystemReport = ({ selectedAppliances, inverterSize, batterySize, effective
 
   const handleDownloadPDF = async () => {
     const canvas = await html2canvas(reportRef.current, {
-      scale: 3.5, // Increase scale for better quality
-      useCORS: true, // Enable cross-origin resource sharing
-      allowTaint: true, // Allow tainted images
-      logging: true, // Enable logging for debugging
-      backgroundColor: '#ffffff' // Set background color to white
+      scale: 2, // Adjust scale for better quality
+      useCORS: true,
+      allowTaint: true,
+      logging: true,
+      backgroundColor: '#ffffff'
     });
+
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF({
       orientation: 'portrait',
       unit: 'px',
-      format: [canvas.width, canvas.height] // Match PDF size to canvas size
+      format: 'a4' // Use A4 format for standard page size
     });
-    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height); // Adjust to fit the entire canvas
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+
+    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+    const imgX = (pdfWidth - imgWidth * ratio) / 2;
+    const imgY = 0; // Set to 0 to remove the top margin
+
+    pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
     pdf.save('system-report.pdf');
   };
 
@@ -41,6 +63,8 @@ const SystemReport = ({ selectedAppliances, inverterSize, batterySize, effective
           <h3 style={{ fontSize: '14px', textAlign: 'left' }}>Recommended System Size</h3>
           <p>Minimum Inverter Size: {inverterSize} W</p>
           <p>Minimum Battery Size: {batterySize} Wh</p>
+          <p>Battery Type: {batteryType}</p>
+          <p>Battery Backup Hours: {batteryBackupHours} hours</p>
           {useSolarPanels && (
             <>
               <p>Recommended Solar Size: {solarPanelSize} W</p>
@@ -72,6 +96,7 @@ const SystemReport = ({ selectedAppliances, inverterSize, batterySize, effective
             )}
           </ul>
         </div>
+        <p><strong>Note:</strong> This estimate assumes all appliances are running simultaneously. You may use a smaller inverter if you manually manage how appliances are switched on.</p>
       </div>
       <div className="report-actions">
         <button onClick={handlePrint}>Print Report</button>
