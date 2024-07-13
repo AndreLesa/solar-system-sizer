@@ -305,6 +305,23 @@
   z-index: 1000;
 }
 
+.reset-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  padding: 10px 20px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.reset-button:hover {
+  background-color: #d32f2f;
+}
+
 /* Mobile Styles */
 @media (max-width: 600px) {
   .appliance-list {

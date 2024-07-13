@@ -11,6 +11,7 @@ const roomAppliances = {
   Kitchen: [
     { name: 'Refrigerator', power: 150, maxPower: 600, defaultMinutes: 1440 },
     { name: 'Microwave', power: 1000, maxPower: 1500, defaultMinutes: 30 },
+    { name: 'Freezer', power: 200, maxPower: 600, defaultMinutes: 1440 },
     { name: 'Electric Oven', power: 2400, maxPower: 3000, defaultMinutes: 60 },
     { name: 'Dishwasher', power: 1200, maxPower: 1800, defaultMinutes: 60 },
     { name: 'Coffee Maker', power: 1000, defaultMinutes: 30 },
@@ -99,14 +100,18 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
   function calculateSystemSize() {
     console.log('Selected Appliances:', selectedAppliances);
 
-    const maxPowerTotal = Object.values(selectedAppliances).reduce((sum, appliance) => {
-      const appliancePower = appliance.maxPower || appliance.power;
-      console.log(`${appliance.name}: Power ${appliancePower}W, Quantity ${appliance.quantity || 1}`);
-      return sum + (appliancePower * (appliance.quantity || 1));
+    const totalPower = Object.values(selectedAppliances).reduce((sum, appliance) => {
+      console.log(`${appliance.name}: Power ${appliance.power}W, Quantity ${appliance.quantity || 1}`);
+      return sum + (appliance.power * (appliance.quantity || 1));
     }, 0);
-    
-    console.log(`Total max power: ${maxPowerTotal}W`);
-    const newInverterSize = Math.ceil(maxPowerTotal / 100) * 100;
+
+    const highestMaxPower = Object.values(selectedAppliances).reduce((max, appliance) => {
+      const applianceMaxPower = appliance.maxPower || appliance.power;
+      console.log(`${appliance.name}: Max Power ${applianceMaxPower}W`);
+      return Math.max(max, applianceMaxPower * (appliance.quantity || 1));
+    }, 0);
+
+    const newInverterSize = Math.ceil(Math.max(totalPower, highestMaxPower) / 100) * 100;
     console.log(`Calculated inverter size: ${newInverterSize}W`);
     setInverterSize(newInverterSize);
 
@@ -273,6 +278,26 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
     setIsOpen(!isOpen);
   };
 
+  const handleReset = () => {
+    setSelectedAppliances({});
+    setBatteryUsageHours(12);
+    setUseSolarPanels(false);
+    setUseGridPower(false);
+    setGridHours(12);
+    setBatteryCapacity(0);
+    setTotalConsumption(0);
+    setSystemSize({});
+    setPowerSources([]);
+    setInverterSize(0);
+    setBatterySize(0);
+    setEffectiveBatterySize(0);
+    setBatteryBackupHours(12);
+    setHourlyConsumption(0);
+    setNumberOfPanels(1);
+    setPanelWattage(300);
+    setSolarPanelSize(0);
+  };
+
   return (
     <div className="appliance-list">
       {showNotification && (
@@ -280,6 +305,8 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
           Appliance added successfully!
         </div>
       )}
+
+      <button onClick={handleReset} className="reset-button">Reset</button>
 
       {Object.entries(roomAppliances).map(([room, appliances]) => (
         <div key={room} className="room-section">
@@ -490,6 +517,7 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
         numberOfPanels={numberOfPanels}
         panelWattage={panelWattage}
       />
+      <p className="disclaimer">This is an estimate. Expert advice may be necessary.</p>
     </div>
   );
 };
