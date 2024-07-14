@@ -469,7 +469,7 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
       </div>
       <div className={`floating-system-info ${isMobile ? 'mobile' : ''}`} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '8px', maxWidth: '250px', margin: '0 auto 20px auto' }}>
         <h3 style={{ textAlign: 'center', fontSize: '1.2em', cursor: 'pointer' }} onClick={toggleOpen}>
-          Recommended<br />System Size
+          Settings
         </h3>
         {isOpen && (
           <>

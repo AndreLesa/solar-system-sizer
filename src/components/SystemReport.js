@@ -80,7 +80,7 @@ const SystemReport = ({
   return (
     <div>
       <div className="system-report" ref={reportRef} style={{ padding: '30px', fontSize: '14px', lineHeight: '1.6', fontFamily: 'Arial, sans-serif' }}>
-        <h1 style={{ fontSize: '24px', textAlign: 'center', marginBottom: '20px', color: '#333' }}>Off-Grid Power System Report</h1>
+        <h1 style={{ fontSize: '24px', textAlign: 'center', marginBottom: '20px', color: '#333' }}>Power System Report</h1>
         
         <div className="report-section" style={{ marginBottom: '30px', backgroundColor: '#f5f5f5', padding: '20px', borderRadius: '8px' }}>
           <h2 style={{ fontSize: '18px', color: '#2c3e50', marginBottom: '15px' }}>System Overview</h2>
