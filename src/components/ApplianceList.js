@@ -105,6 +105,25 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
     }, 0).toFixed(2);
   }
 
+  const calculateMaxPowerDraw = () => {
+    return Object.values(selectedAppliances).reduce((max, appliance) => {
+      const appliancePower = appliance.maxPower || appliance.power;
+      return Math.max(max, appliancePower * (appliance.quantity || 1));
+    }, 0);
+  };
+
+  const findHighestPowerItem = () => {
+    const highestPowerAppliance = Object.values(selectedAppliances).reduce((highest, appliance) => {
+      const appliancePower = appliance.maxPower || appliance.power;
+      if (appliancePower > (highest.maxPower || highest.power)) {
+        return appliance;
+      }
+      return highest;
+    }, { power: 0 });
+
+    return `${highestPowerAppliance.name} (${highestPowerAppliance.maxPower || highestPowerAppliance.power}W)`;
+  };
+
   function calculateSystemSize() {
     console.log('Selected Appliances:', selectedAppliances);
 
@@ -312,6 +331,27 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
 
   const isMobile = window.innerWidth <= 768;
 
+  const InfoItem = ({ label, value }) => (
+    <div style={{ fontSize: '0.9em', display: 'flex', flexDirection: 'column' }}>
+      <span style={{ color: '#666' }}>{label}:</span>
+      <span style={{ fontWeight: 'bold' }}>{value}</span>
+    </div>
+  );
+
+  const RadioButton = ({ name, value, checked, onChange, label }) => (
+    <label style={{ fontSize: '0.9em', display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+      <input
+        type="radio"
+        name={name}
+        value={value}
+        checked={checked}
+        onChange={onChange}
+        style={{ marginRight: '5px' }}
+      />
+      {label}
+    </label>
+  );
+
   return (
     <div className="appliance-list">
       {showNotification && (
@@ -437,28 +477,77 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
         position: 'fixed', 
         bottom: '10px', 
         right: '10px', 
-        width: '250px', 
-        padding: '15px', 
-        border: '1px solid #ccc', 
-        borderRadius: '8px', 
-        backgroundColor: '#fff', 
+        width: '280px', 
+        padding: '20px', 
+        border: '1px solid #e0e0e0', 
+        borderRadius: '12px', 
+        backgroundColor: '#ffffff', 
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', 
-        zIndex: 1000 
+        zIndex: 1000,
+        fontFamily: 'Arial, sans-serif'
       }}>
-        <h3 style={{ marginBottom: '10px' }}>Total Consumption</h3>
-        <p className="total-kwh" style={{ fontSize: '1.2em', fontWeight: 'bold' }}>{calculateTotalKWh()} kWh/day</p>
+        <h3 style={{ 
+          textAlign: 'center', 
+          fontSize: '1.3em', 
+          marginBottom: '15px', 
+          color: '#333', 
+          borderBottom: '2px solid #f0f0f0', 
+          paddingBottom: '10px' 
+        }}>
+          System Summary
+        </h3>
+        <div className="system-info-grid" style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '10px',
+          marginBottom: '15px',
+          fontSize: '0.9em'
+        }}>
+          <InfoItem label="Total Consumption" value={`${calculateTotalKWh()} kWh/day`} />
+          <InfoItem label="Max Power Draw" value={`${calculateMaxPowerDraw()} W`} />
+          <InfoItem label="Highest Power Item" value={findHighestPowerItem()} />
+        </div>
         {!isMobile && (
-          <div className="selected-appliance-info">
-            <h4 style={{ marginTop: '15px', marginBottom: '10px' }}>Selected Appliances:</h4>
+          <div className="selected-appliance-info" style={{ 
+            maxHeight: '200px', 
+            overflowY: 'auto', 
+            paddingRight: '10px',
+            marginTop: '15px',
+            borderTop: '1px solid #e0e0e0',
+            paddingTop: '15px'
+          }}>
+            <h4 style={{ 
+              marginBottom: '10px', 
+              fontSize: '1.1em', 
+              color: '#333' 
+            }}>
+              Selected Appliances:
+            </h4>
             {Object.entries(roomAppliances).map(([room, appliances]) => {
               const selectedInRoom = appliances.filter(a => selectedAppliances[`${room}-${a.name}`]);
               if (selectedInRoom.length === 0) return null;
               return (
                 <div key={room} className="room-group" style={{ marginBottom: '10px' }}>
-                  <h5 style={{ marginBottom: '5px' }}>{room}</h5>
+                  <h5 style={{ 
+                    marginBottom: '5px', 
+                    fontSize: '0.95em', 
+                    color: '#666',
+                    borderBottom: '1px solid #e0e0e0',
+                    paddingBottom: '3px'
+                  }}>
+                    {room}
+                  </h5>
                   {selectedInRoom.map(appliance => (
-                    <p key={appliance.name} style={{ margin: '2px 0' }}>
-                      {appliance.name}: {calculateDailyKWh(selectedAppliances[`${room}-${appliance.name}`])} kWh/day
+                    <p key={appliance.name} style={{ 
+                      margin: '3px 0', 
+                      fontSize: '0.85em',
+                      display: 'flex',
+                      justifyContent: 'space-between'
+                    }}>
+                      <span>{appliance.name}:</span>
+                      <span style={{ fontWeight: 'bold' }}>
+                        {calculateDailyKWh(selectedAppliances[`${room}-${appliance.name}`])} kWh/day
+                      </span>
                     </p>
                   ))}
                 </div>
@@ -467,46 +556,36 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
           </div>
         )}
       </div>
-      <div className={`floating-system-info ${isMobile ? 'mobile' : ''}`} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '8px', maxWidth: '250px', margin: '0 auto 20px auto' }}>
-        <h3 style={{ textAlign: 'center', fontSize: '1.2em', cursor: 'pointer' }} onClick={toggleOpen}>
-          Settings
+      <div className={`floating-system-info ${isMobile ? 'mobile' : ''}`} style={{
+        padding: '20px',
+        border: '1px solid #e0e0e0',
+        borderRadius: '12px',
+        width: '240px',
+        margin: '0 auto 20px auto',
+        backgroundColor: '#ffffff',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        fontFamily: 'Arial, sans-serif'
+      }}>
+        <h3 style={{
+          textAlign: 'center',
+          fontSize: '1.2em',
+          cursor: 'pointer',
+          marginBottom: '15px',
+          color: '#333',
+          borderBottom: '2px solid #f0f0f0',
+          paddingBottom: '10px'
+        }} onClick={toggleOpen}>
+          System Settings
+          <span style={{ marginLeft: '10px', fontSize: '0.8em' }}>
+            {isOpen ? '▲' : '▼'}
+          </span>
         </h3>
         {isOpen && (
           <>
-            <div className="system-info-item" style={{ textAlign: 'center', marginBottom: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '0.9em' }}>
-              <span>Min Inverter:</span>
-              <span>{inverterSize} W</span>
-            </div>
-            <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '0.9em' }}>
-              <span>Min Battery:</span>
-              <span>{batterySize} Wh</span>
-            </div>
-            {useSolarPanels && (
-              <>
-                <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '0.9em' }}>
-                  <span>Rec Solar:</span>
-                  <span>{solarPanelSize} W</span>
-                </div>
-                <div className="system-info-item" style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '0.9em' }}>
-                  <span>Panels:</span>
-                  <span>{numberOfPanels}</span>
-                </div>
-                <div className="solar-panel-input" style={{ marginBottom: '10px' }}>
-                  <label htmlFor="panel-wattage" style={{ fontSize: '0.9em' }}>Panel Wattage (W):</label>
-                  <input
-                    type="number"
-                    id="panel-wattage"
-                    min="100"
-                    step="50"
-                    value={panelWattage}
-                    onChange={handlePanelWattageChange}
-                    style={{ width: '100%', padding: '5px', borderRadius: '4px', border: '1px solid #ccc' }}
-                  />
-                </div>
-              </>
-            )}
-            <div className="battery-backup-slider" style={{ marginBottom: '10px' }}>
-              <label htmlFor="battery-backup-hours" style={{ fontSize: '0.9em' }}>Battery Backup Hours: {batteryBackupHours}</label>
+            <div className="battery-backup-slider" style={{ marginBottom: '15px' }}>
+              <label htmlFor="battery-backup-hours" style={{ fontSize: '0.9em', display: 'block', marginBottom: '5px' }}>
+                Battery Backup Hours: {batteryBackupHours}
+              </label>
               <input
                 type="range"
                 id="battery-backup-hours"
@@ -517,56 +596,71 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
                 style={{ width: '100%' }}
               />
             </div>
-
-            <div className="battery-type">
-              <span>Battery Type</span>
-              <label>
-                <input type="radio" name="battery-type" value="lithium" checked={batteryType === 'lithium'} onChange={handleBatteryTypeChange} /> Lithium
-              </label>
-              <label>
-                <input type="radio" name="battery-type" value="lead-acid" checked={batteryType === 'lead-acid'} onChange={handleBatteryTypeChange} /> Lead Acid
-              </label>
+            <div className="battery-type" style={{ marginBottom: '15px' }}>
+              <span style={{ fontSize: '0.9em', display: 'block', marginBottom: '5px' }}>Battery Type</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <RadioButton
+                  name="battery-type"
+                  value="lithium"
+                  checked={batteryType === 'lithium'}
+                  onChange={handleBatteryTypeChange}
+                  label="Lithium"
+                />
+                <RadioButton
+                  name="battery-type"
+                  value="lead-acid"
+                  checked={batteryType === 'lead-acid'}
+                  onChange={handleBatteryTypeChange}
+                  label="Lead Acid"
+                />
+              </div>
             </div>
-            <div className="solar-panel-toggle" style={{ marginBottom: '10px' }}>
-              <label style={{ fontSize: '0.9em' }}>
+            <div className="solar-panel-toggle" style={{ marginBottom: '15px' }}>
+              <label style={{ fontSize: '0.9em', display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
                   checked={useSolarPanels}
                   onChange={handleUseSolarPanelsChange}
+                  style={{ marginRight: '10px' }}
                 />
                 Use Solar Panels
               </label>
             </div>
-            <div className="system-voltage-selection" style={{ marginTop: '10px' }}>
-              <h4 style={{ fontSize: '0.9em', marginBottom: '5px' }}>System Voltage</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                <label style={{ fontSize: '0.9em', marginBottom: '3px' }}>
-                  <input
-                    type="radio"
-                    name="system-voltage"
-                    value="12"
-                    checked={systemVoltage === 12}
-                    onChange={handleSystemVoltageChange}
-                  /> 12V
+            {useSolarPanels && (
+              <div className="solar-panel-input" style={{ marginBottom: '15px' }}>
+                <label htmlFor="panel-wattage" style={{ fontSize: '0.9em', display: 'block', marginBottom: '5px' }}>
+                  Panel Wattage (W):
                 </label>
-                <label style={{ fontSize: '0.9em', marginBottom: '3px' }}>
-                  <input
-                    type="radio"
+                <input
+                  type="number"
+                  id="panel-wattage"
+                  min="100"
+                  step="50"
+                  value={panelWattage}
+                  onChange={handlePanelWattageChange}
+                  style={{
+                    width: 'calc(100% - 16px)',
+                    padding: '8px',
+                    borderRadius: '4px',
+                    border: '1px solid #ccc',
+                    fontSize: '0.9em'
+                  }}
+                />
+              </div>
+            )}
+            <div className="system-voltage-selection">
+              <h4 style={{ fontSize: '0.9em', marginBottom: '10px' }}>System Voltage</h4>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                {[12, 24, 48].map(voltage => (
+                  <RadioButton
+                    key={voltage}
                     name="system-voltage"
-                    value="24"
-                    checked={systemVoltage === 24}
+                    value={voltage}
+                    checked={systemVoltage === voltage}
                     onChange={handleSystemVoltageChange}
-                  /> 24V
-                </label>
-                <label style={{ fontSize: '0.9em', marginBottom: '3px' }}>
-                  <input
-                    type="radio"
-                    name="system-voltage"
-                    value="48"
-                    checked={systemVoltage === 48}
-                    onChange={handleSystemVoltageChange}
-                  /> 48V
-                </label>
+                    label={`${voltage}V`}
+                  />
+                ))}
               </div>
             </div>
           </>
