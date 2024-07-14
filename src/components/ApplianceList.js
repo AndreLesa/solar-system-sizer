@@ -88,6 +88,12 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
 
   const [batteryType, setBatteryType] = useState('lithium'); // Add this state
 
+  const [systemVoltage, setSystemVoltage] = useState(12);
+
+  const handleSystemVoltageChange = (event) => {
+    setSystemVoltage(Number(event.target.value));
+  };
+
   function calculateDailyKWh(appliance) {
     const kWh = ((appliance.power * appliance.hoursPerDay * (appliance.quantity || 1)) / 1000).toFixed(2);
     return isNaN(kWh) ? '0' : kWh;
@@ -531,6 +537,38 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
                 Use Solar Panels
               </label>
             </div>
+            <div className="system-voltage-selection" style={{ marginTop: '10px' }}>
+              <h4 style={{ fontSize: '0.9em', marginBottom: '5px' }}>System Voltage</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                <label style={{ fontSize: '0.9em', marginBottom: '3px' }}>
+                  <input
+                    type="radio"
+                    name="system-voltage"
+                    value="12"
+                    checked={systemVoltage === 12}
+                    onChange={handleSystemVoltageChange}
+                  /> 12V
+                </label>
+                <label style={{ fontSize: '0.9em', marginBottom: '3px' }}>
+                  <input
+                    type="radio"
+                    name="system-voltage"
+                    value="24"
+                    checked={systemVoltage === 24}
+                    onChange={handleSystemVoltageChange}
+                  /> 24V
+                </label>
+                <label style={{ fontSize: '0.9em', marginBottom: '3px' }}>
+                  <input
+                    type="radio"
+                    name="system-voltage"
+                    value="48"
+                    checked={systemVoltage === 48}
+                    onChange={handleSystemVoltageChange}
+                  /> 48V
+                </label>
+              </div>
+            </div>
           </>
         )}
       </div>
@@ -545,6 +583,7 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
         panelWattage={panelWattage}
         batteryType={batteryType}
         batteryBackupHours={batteryBackupHours}
+        systemVoltage={systemVoltage}
       />
       <p className="disclaimer">This is an estimate. Expert advice may be necessary.</p>
     </div>
