@@ -88,7 +88,6 @@ const SystemReport = ({
             <p><strong>Inverter Size:</strong> {inverterSize} W</p>
             <p><strong>Battery Size:</strong> {batterySize} Wh</p>
             <p><strong>Battery Type:</strong> {batteryType}</p>
-            <p><strong>System Voltage:</strong> {systemVoltage}V</p>
             <p><strong>Backup Duration:</strong> {batteryBackupHours} hours</p>
 
           </div>

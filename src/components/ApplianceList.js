@@ -90,6 +90,9 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
 
   const [systemVoltage, setSystemVoltage] = useState(12);
 
+  const LITHIUM_BATTERY_DOD = 0.9;
+  const LEAD_ACID_BATTERY_DOD = 0.5;
+
   const handleSystemVoltageChange = (event) => {
     setSystemVoltage(Number(event.target.value));
   };
@@ -146,7 +149,8 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
     
     // Calculate battery size based on backup hours
     const newBatterySize = Math.max(
-      Math.ceil((dailyConsumption * batteryBackupHours / 24) / (batteryType === 'lithium' ? 0.8 : 0.5) / 100) * 100,
+      Math.ceil((dailyConsumption * batteryBackupHours / 24) / 
+        (batteryType === 'Lithium' ? LITHIUM_BATTERY_DOD : LEAD_ACID_BATTERY_DOD) / 100) * 100,
       MIN_BATTERY_SIZE
     );
     console.log(`Calculated battery size: ${newBatterySize}Wh for ${batteryBackupHours} hours backup`);
@@ -601,15 +605,15 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <RadioButton
                   name="battery-type"
-                  value="lithium"
-                  checked={batteryType === 'lithium'}
+                  value="Lithium"
+                  checked={batteryType === 'Lithium'}
                   onChange={handleBatteryTypeChange}
                   label="Lithium"
                 />
                 <RadioButton
                   name="battery-type"
-                  value="lead-acid"
-                  checked={batteryType === 'lead-acid'}
+                  value="Lead-Acid"
+                  checked={batteryType === 'Lead-Acid'}
                   onChange={handleBatteryTypeChange}
                   label="Lead Acid"
                 />
