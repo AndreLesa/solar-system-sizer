@@ -90,12 +90,7 @@ const SystemReport = ({
             <p><strong>Battery Type:</strong> {batteryType}</p>
             <p><strong>System Voltage:</strong> {systemVoltage}V</p>
             <p><strong>Backup Duration:</strong> {batteryBackupHours} hours</p>
-            {batteryType === 'lead-acid' && (
-              <>
-                <p><strong>Minimum Battery Size:</strong> {minimumBatterySizeAh} Ah</p>
-                <p><strong>Batteries Needed:</strong> {numberOfBatteriesNeeded}</p>
-              </>
-            )}
+
           </div>
         </div>
 

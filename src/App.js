@@ -1,6 +1,4 @@
-
-
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import ApplianceList from './components/ApplianceList';
 import TotalConsumption from './components/TotalConsumption';
 import SolarSystemSuggestion from './components/SolarSystemSuggestion';
@@ -47,14 +45,36 @@ const App = () => {
     setAppliances(newAppliances);
   };
 
-  const totalConsumption = appliances.reduce(
-    (total, appliance) => total + appliance.power * appliance.quantity * appliance.hoursPerDay,
-    0
-  );
+  const totalConsumption = useMemo(() => {
+    return appliances.reduce(
+      (total, appliance) => total + appliance.power * appliance.quantity * appliance.hoursPerDay,
+      0
+    );
+  }, [appliances]);
 
   return (
     <div className="App">
-      <h1>Solar System Sizer</h1>
+      <header className="site-header">
+        <h1>Solar System Calculator</h1>
+      </header>
+
+      <div className="intro-section">
+        <h2>Welcome to the Energy System Calculator</h2>
+        <p className="intro-description">This tool helps you estimate the size of the energy system you need based on your appliance usage and specific requirements.</p>
+        <div className="feature-list">
+          <h3>Here's what you can do:</h3>
+          <ul>
+            <li>Add appliances to your list, specifying their power consumption, quantity, and daily usage hours.</li>
+            <li>Edit or remove appliances as needed to refine your calculation.</li>
+            <li>Adjust the number of backup hours you want your system to support.</li>
+            <li>Specify the size of solar panels to determine the number of panels needed.</li>
+            <li>View the total power consumption based on your appliance list.</li>
+            <li>Get a suggestion for an appropriate solar system based on your energy needs and preferences.</li>
+          </ul>
+        </div>
+        <p className="intro-footer">As you adjust your settings and appliance list, the total consumption and energy system suggestion will update automatically. This helps you understand how different factors impact your energy needs and solar system requirements.</p>
+      </div>
+
       <ApplianceList
         appliances={appliances}
         addAppliance={addAppliance}

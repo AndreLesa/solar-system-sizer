@@ -169,3 +169,40 @@ button:hover {
 .system-size-info p {
   margin: 2px 0;
 }
+
+.site-header {
+  background-color: #2c3e50;
+  color: white;
+  padding: 20px 0;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.site-header h1 {
+  margin: 0;
+  font-size: 2.5em;
+}
+
+.intro-text {
+  max-width: 800px;
+  margin: 0 auto 30px;
+  padding: 0 20px;
+  text-align: center;
+  line-height: 1.6;
+  color: #333;
+}
+
+.intro-text p {
+  margin-bottom: 15px;
+}
+
+.intro-text ul {
+  text-align: left;
+  max-width: 600px;
+  margin: 20px auto;
+  padding-left: 30px;
+}
+
+.intro-text li {
+  margin-bottom: 10px;
+}

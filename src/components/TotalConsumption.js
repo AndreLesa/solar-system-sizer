@@ -4,7 +4,11 @@ const TotalConsumption = ({ totalConsumption }) => {
   return (
     <div className="total-consumption">
       <h2>Total Daily Consumption</h2>
-      <p>{totalConsumption.toFixed(2)} Wh/day</p>
+      <p>
+        {totalConsumption !== undefined
+          ? `${totalConsumption.toFixed(2)} Wh`
+          : 'Add appliances to calculate total consumption'}
+      </p>
     </div>
   );
 };

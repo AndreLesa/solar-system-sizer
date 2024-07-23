@@ -648,21 +648,7 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
                 />
               </div>
             )}
-            <div className="system-voltage-selection">
-              <h4 style={{ fontSize: '0.9em', marginBottom: '10px' }}>System Voltage</h4>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                {[12, 24, 48].map(voltage => (
-                  <RadioButton
-                    key={voltage}
-                    name="system-voltage"
-                    value={voltage}
-                    checked={systemVoltage === voltage}
-                    onChange={handleSystemVoltageChange}
-                    label={`${voltage}V`}
-                  />
-                ))}
-              </div>
-            </div>
+            
           </>
         )}
       </div>
