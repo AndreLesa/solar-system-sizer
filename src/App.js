@@ -72,6 +72,9 @@ const App = () => {
             <li>Get a suggestion for an appropriate solar system based on your energy needs and preferences.</li>
           </ul>
         </div>
+        <p><strong>If you have any questions or need an installation to be done, send a Whatsapp message to +260973203144 
+          (Zambia Only).</strong>
+        </p>
         <p className="intro-footer">As you adjust your settings and appliance list, the total consumption and energy system suggestion will update automatically. This helps you understand how different factors impact your energy needs and solar system requirements.</p>
       </div>
 

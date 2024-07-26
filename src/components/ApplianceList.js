@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet';
 import { calculateSystemSize } from '../utils/calculateSystemSize';
 import '../styles/ApplianceList.css';
 import SystemReport from './SystemReport';
@@ -358,6 +359,20 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
 
   return (
     <div className="appliance-list">
+      <Helmet>
+        <title>System Report - Detailed Power System Analysis</title>
+        <meta name="description" content="Get a detailed report of your power system including inverter size, battery size, and solar panel recommendations." />
+        <meta name="keywords" content="system report, power system, inverter size, battery size, solar panels, energy consumption" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Report",
+            "name": "System Report",
+            "description": "Detailed report of your power system including inverter size, battery size, and solar panel recommendations.",
+            "url": "https://yourwebsite.com/system-report"
+          })}
+        </script>
+      </Helmet>
       {showNotification && (
         <div className="notification-popup">
           Appliance added successfully!
