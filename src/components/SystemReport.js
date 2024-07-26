@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet';
 import { useReactToPrint } from 'react-to-print';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { getMaxPowerDraw, getTotalConsumption, getHighestPowerItem } from './ApplianceList';
 
 const SystemReport = ({
   selectedAppliances,
@@ -18,6 +19,15 @@ const SystemReport = ({
   systemVoltage
 }) => {
   const reportRef = useRef();
+  const [maxPowerDraw, setMaxPowerDraw] = useState(0);
+  const [totalConsumption, setTotalConsumption] = useState(0);
+  const [highestPowerItem, setHighestPowerItem] = useState({ name: '', wattage: 0 });
+
+  useEffect(() => {
+    setMaxPowerDraw(getMaxPowerDraw(selectedAppliances));
+    setTotalConsumption(getTotalConsumption(selectedAppliances));
+    setHighestPowerItem(getHighestPowerItem(selectedAppliances));
+  }, [selectedAppliances]);
 
   const handlePrint = useReactToPrint({
     content: () => reportRef.current,
@@ -80,6 +90,20 @@ const SystemReport = ({
 
   return (
     <div>
+      <Helmet>
+        <title>System Report - Detailed Power System Analysis</title>
+        <meta name="description" content="Get a detailed report of your power system including inverter size, battery size, and solar panel recommendations." />
+        <meta name="keywords" content="system report, power system, inverter size, battery size, solar panels, energy consumption" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Report",
+            "name": "System Report",
+            "description": "Detailed report of your power system including inverter size, battery size, and solar panel recommendations.",
+            "url": "https://yourwebsite.com/system-report"
+          })}
+        </script>
+      </Helmet>
       <div className="system-report" ref={reportRef} style={{ padding: '30px', fontSize: '14px', lineHeight: '1.6', fontFamily: 'Arial, sans-serif' }}>
         <h1 style={{ fontSize: '24px', textAlign: 'center', marginBottom: '20px', color: '#333' }}>Power System Report</h1>
         
@@ -90,7 +114,9 @@ const SystemReport = ({
             <p><strong>Battery Size:</strong> {batterySize} Wh</p>
             <p><strong>Battery Type:</strong> {batteryType}</p>
             <p><strong>Backup Duration:</strong> {batteryBackupHours} hours</p>
-
+            <p><strong>Total Consumption:</strong> {totalConsumption} kWh/day</p>
+            <p><strong>Max Power Draw:</strong> {maxPowerDraw} W</p>
+            <p><strong>Highest Power Item:</strong> {highestPowerItem.name} ({highestPowerItem.wattage} W)</p>
           </div>
         </div>
 

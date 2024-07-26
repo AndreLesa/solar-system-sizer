@@ -125,7 +125,10 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
       return highest;
     }, { power: 0 });
 
-    return `${highestPowerAppliance.name} (${highestPowerAppliance.maxPower || highestPowerAppliance.power}W)`;
+    return {
+      name: highestPowerAppliance.name,
+      wattage: highestPowerAppliance.maxPower || highestPowerAppliance.power
+    };
   };
 
   function calculateSystemSize() {
@@ -524,7 +527,7 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
         }}>
           <InfoItem label="Total Consumption" value={`${calculateTotalKWh()} kWh/day`} />
           <InfoItem label="Max Power Draw" value={`${calculateMaxPowerDraw()} W`} />
-          <InfoItem label="Highest Power Item" value={findHighestPowerItem()} />
+          <InfoItem label="Highest Power Item" value={`${findHighestPowerItem().name} (${findHighestPowerItem().wattage} W)`} />
         </div>
         {!isMobile && (
           <div className="selected-appliance-info" style={{ 
@@ -690,4 +693,33 @@ const ApplianceList = ({ appliances, addAppliance, updateAppliance, removeApplia
 };
 
 export default ApplianceList;
+
+export const getMaxPowerDraw = (selectedAppliances) => {
+  return Object.values(selectedAppliances).reduce((max, appliance) => {
+    const appliancePower = appliance.maxPower || appliance.power;
+    return Math.max(max, appliancePower * (appliance.quantity || 1));
+  }, 0);
+};
+
+export const getTotalConsumption = (selectedAppliances) => {
+  return Object.values(selectedAppliances).reduce((total, appliance) => {
+    const dailyKWh = (appliance.power * appliance.hoursPerDay * appliance.quantity) / 1000;
+    return total + dailyKWh;
+  }, 0).toFixed(2);
+};
+
+export const getHighestPowerItem = (selectedAppliances) => {
+  const highestPowerAppliance = Object.values(selectedAppliances).reduce((highest, appliance) => {
+    const appliancePower = appliance.maxPower || appliance.power;
+    if (appliancePower > (highest.maxPower || highest.power)) {
+      return appliance;
+    }
+    return highest;
+  }, { power: 0 });
+
+  return {
+    name: highestPowerAppliance.name,
+    wattage: highestPowerAppliance.maxPower || highestPowerAppliance.power
+  };
+};
 
